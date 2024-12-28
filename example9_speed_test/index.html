@@ -1,0 +1,63 @@
+<html>
+
+<head>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+
+<body>
+	<div id="container">
+		<h1>How old are you?</h1>
+		<input id="input1" value="1000000000" />
+		<button onClick="printFib(document.getElementById('input1').value);">Print Fib</button>
+		<button onClick="document.getElementById('result').innerText='';">Clear</button>
+		<div id="result"></div>
+	</div>
+	<script>
+		var inst;
+
+		function fibonacci(n) {
+			return n < 1 ? 0
+				: n <= 2 ? 1
+					: fibonacci(n - 1) + fibonacci(n - 2)
+		}
+
+		function printFib(n) {
+			try {
+				document.getElementById("result").innerText = new Date() + "\n";
+				document.getElementById("result").innerText += inst.exports.fibonacci(n) + "\n";
+				document.getElementById("result").innerText += new Date() + "\n";
+				document.getElementById("result").innerText += fibonacci(n) + "\n";
+				document.getElementById("result").innerText += new Date() + "\n";
+			} catch (ex) {
+				document.getElementById("result").innerText += ex + "\n";
+			}
+		}
+
+		const memory = new WebAssembly.Memory({
+			initial: 10,
+			maximum: 1000,
+		});
+
+		WebAssembly.instantiateStreaming(fetch('printFib.wasm'), {
+			js: { mem: memory },
+		}).then((obj) => {
+			// const summands = new DataView(memory.buffer);
+			// for (let i = 0; i < 10; i++) {
+			// 	summands.setUint32(i * 4, i, true); // WebAssembly is little endian
+			// }
+			// const sum = obj.instance.exports.accumulate(0, 10);
+			// console.log(sum);
+			inst = obj.instance;
+		});
+
+		// return fetch(url).then(response => response.arrayBuffer()
+		// ).then(bytes =>
+		// 	WebAssembly.instantiate(bytes)
+		// ).then(results =>
+		// 	results.instance
+		// )
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+</head>
+
+<body>
+	<h1>Printf example</h1>
+	<p>
+		<button onclick="wasm.instance.exports.helloWorld();">
+			helloWorld
+		</button>
+	</p>
+	<script>
+		let wasm;
+
+		const decoder = new TextDecoder("utf-8");
+
+		function get_memory() {
+			return new Uint8Array(wasm.instance.exports.memory.buffer);
+		}
+
+		function charPtrToString(str) {
+			const memory = get_memory();
+			let length = 0;
+			for (; memory[str + length] !== 0; ++length) { }
+			return decoder.decode(memory.subarray(str, str + length));
+		}
+
+		const importObject = {
+			env: {
+				print_string: function (str) {
+					console.log('print_string=' + charPtrToString(str));
+				}
+			}
+		};
+		WebAssembly.instantiateStreaming(fetch('library.wasm'), importObject).then(function (obj) {
+			wasm = obj;
+			wasm.instance.exports.helloWorld();
+		});
+	</script>
+</body>
+
+</html>
